@@ -1,0 +1,15 @@
+.brand-logo {
+    margin-left: 10px
+}
+
+.collection-item {}
+
+.collection-item:hover {
+    cursor: pointer;
+    background-color: #eee;
+}
+
+.collection {
+    border: 1px solid #fff;
+    border-right: 1px solid #eee;
+}
