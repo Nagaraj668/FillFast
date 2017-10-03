@@ -1,33 +1,16 @@
-[debug] [2017-10-03T19:50:24.761Z] ----------------------------------------------------------------------
-[debug] [2017-10-03T19:50:24.763Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\NAGARAJ SRJ\AppData\Roaming\npm\node_modules\firebase-tools\bin\firebase deploy --only hosting
-[debug] [2017-10-03T19:50:24.763Z] CLI Version:   3.12.0
-[debug] [2017-10-03T19:50:24.763Z] Platform:      win32
-[debug] [2017-10-03T19:50:24.763Z] Node Version:  v6.11.3
-[debug] [2017-10-03T19:50:24.764Z] Time:          Wed Oct 04 2017 01:20:24 GMT+0530 (India Standard Time)
-[debug] [2017-10-03T19:50:24.764Z] ----------------------------------------------------------------------
+[debug] [2017-10-03T19:58:49.739Z] ----------------------------------------------------------------------
+[debug] [2017-10-03T19:58:49.741Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\NAGARAJ SRJ\AppData\Roaming\npm\node_modules\firebase-tools\bin\firebase deploy --only hosting
+[debug] [2017-10-03T19:58:49.742Z] CLI Version:   3.12.0
+[debug] [2017-10-03T19:58:49.742Z] Platform:      win32
+[debug] [2017-10-03T19:58:49.742Z] Node Version:  v6.11.3
+[debug] [2017-10-03T19:58:49.742Z] Time:          Wed Oct 04 2017 01:28:49 GMT+0530 (India Standard Time)
+[debug] [2017-10-03T19:58:49.742Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2017-10-03T19:50:24.777Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2017-10-03T19:50:24.778Z] > authorizing via signed-in user
-[debug] [2017-10-03T19:50:24.780Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
-[debug] [2017-10-03T19:50:24.781Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token { refresh_token: '1/opoYm_S5gebRC_yGLI3V9G4EOQAQ1L5GA9dPYH_aOQs',
-  client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com',
-  client_secret: 'j9iVZfS8kkCEFUPaAeJV0sAi',
-  grant_type: 'refresh_token',
-  scope: 'email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase openid' } 
- Wed Oct 04 2017 01:20:24 GMT+0530 (India Standard Time)
-[debug] [2017-10-03T19:50:24.942Z] <<< HTTP RESPONSE 200
-[debug] [2017-10-03T19:50:24.969Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/fill-box  
- Wed Oct 04 2017 01:20:24 GMT+0530 (India Standard Time)
-[debug] [2017-10-03T19:50:26.122Z] <<< HTTP RESPONSE 200
-[debug] [2017-10-03T19:50:26.123Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/fill-box/tokens  
- Wed Oct 04 2017 01:20:26 GMT+0530 (India Standard Time)
-[debug] [2017-10-03T19:50:27.263Z] <<< HTTP RESPONSE 200
-[info] 
-[info] === Deploying to 'fill-box'...
-[info] 
-[info] i  deploying hosting
-[info] i  hosting: preparing public directory for upload...
-[debug] [2017-10-03T19:50:30.553Z] >>> HTTP REQUEST PUT https://deploy.firebase.com/v1/hosting/fill-box/uploads/-KvYmY5_CePkRvHbdQmj?fileCount=36&message=  
- Wed Oct 04 2017 01:20:30 GMT+0530 (India Standard Time)
-[debug] [2017-10-03T19:50:34.794Z] <<< HTTP RESPONSE 200
-[debug] [2017-10-03T19:50:34.795Z] [hosting] .tgz uploaded successfully, waiting for extraction
+[debug] [2017-10-03T19:58:49.755Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2017-10-03T19:58:49.755Z] > authorizing via signed-in user
+[debug] [2017-10-03T19:58:49.758Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/fill-box  
+ Wed Oct 04 2017 01:28:49 GMT+0530 (India Standard Time)
+[debug] [2017-10-03T19:58:51.236Z] <<< HTTP RESPONSE 200
+[debug] [2017-10-03T19:58:51.237Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/fill-box/tokens  
+ Wed Oct 04 2017 01:28:51 GMT+0530 (India Standard Time)
+[debug] [2017-10-03T19:58:52.169Z] <<< HTTP RESPONSE 200
