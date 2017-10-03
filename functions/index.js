@@ -42,3 +42,7 @@ exports.validatePlayerEntry = functions.database.ref('games/{gameId}/participant
     });
 
 })
+
+exports.onGameStatusChange = functions.database.ref('games/{gameId}/entries/{cellId}/image').onWrite(event => {
+    return event.data.ref.parent.child('success').set(true);
+})

@@ -4,11 +4,15 @@ var action;
 var selectedPlayer = undefined;
 var isPublicGame = true;
 var gameItemHTML;
+var gridCellHTML;
 var recentlySelectedGameId;
+var CURRENT_GAME = 'CURRENT_GAME';
 
 var storageRef = firebase.storage().ref();
 var usersRef = firebase.database().ref('users');
 var gamesRef = firebase.database().ref('games');
+var participantsRef;
+var gridItems = [];
 
 $(document).ready(function() {
     $(".button-collapse").sideNav();
@@ -16,6 +20,10 @@ $(document).ready(function() {
 
     $.get('game-item.html', function(data) {
         gameItemHTML = data;
+    });
+
+    $.get('grid-cell.html', function(data) {
+        gridCellHTML = data;
     });
 
     var slider = document.getElementById('players-slider');
@@ -49,12 +57,117 @@ $(document).ready(function() {
         }
     });
 
-    $('ul.tabs').tabs({
-        onShow: function(tab) {
+});
 
+
+function enterPlayArea() {
+    recentlySelectedGameId = get(CURRENT_GAME).gameId;
+    if (!recentlySelectedGameId) {
+        return;
+    }
+    if (participantsRef) {
+        participantsRef.off();
+        participantsRef = null;
+        $('#game_participants').empty();
+    }
+
+    gridItems = [];
+
+    for (var i = 0; i < 36; i++) {
+        gridItems.push({
+            index: i
+        });
+    }
+
+    buildGridUI();
+
+    var currentGameRef = gamesRef.child(recentlySelectedGameId).on('value', function(data) {
+        var game = data.val();
+        var status = game.status;
+        $('#game_name').text(game.gameName);
+        $('#game_logo').attr('src', game.gameIcon);
+        $('#game_status').text(status.message);
+
+    });
+
+    var currentGameStatusref = gamesRef.child(recentlySelectedGameId).child('status/code').on('value', function(data) {
+        var gameStatus = data.val();
+        switch (gameStatus) {
+            case 2:
+                {
+                    gameStarted();
+                    break;
+                }
+            case 3:
+                {
+                    gameEnded();
+                    break;
+                }
         }
     });
-});
+
+
+    participantsRef = gamesRef.child(recentlySelectedGameId).child('participants');
+    participantsRef.on('child_added', function(data) {
+        $('#sample_label').hide();
+        addParticipantElement(data.key, data.val());
+    });
+}
+
+function buildGridUI() {
+    var element = gridCellHTML;
+
+    for (var i = 0; i < gridItems.length; i++) {
+        var gridCell = gridItems[i];
+        element = replaceAll(element, 'CELL_ID', 'id' + i);
+        element = replaceAll(element, 'CELL_INDEX', i + '');
+        $('#grid-wrapper').append(element);
+        element = gridCellHTML;
+    }
+
+}
+
+function gameStarted() {
+    gamesRef.child(recentlySelectedGameId).child('entries').on('child_added', function(data) {
+        var cell = data.val();
+        console.log(JSON.stringify(cell))
+        $('#id' + cell.index).attr('src', cell.image);
+        $('#id' + cell.index).attr('data-cellId', cell.cellId);
+        if (cell.success) {
+            $('#id' + cell.index).addClass('success');
+        }
+        $('#id' + cell.index).attr('data-isempty', false);
+    });
+
+    gamesRef.child(recentlySelectedGameId).child('entries').on('child_changed', function(data) {
+        var cell = data.val();
+        $('#id' + cell.index).attr('src', cell.image);
+        if (cell.success) {
+            $('#id' + cell.index).addClass('success');
+        }
+    });
+}
+
+function gameEnded() {
+
+}
+
+function onCellClicked(cellId) {
+    var isEmptyCell = $('#' + cellId).attr('data-isempty');
+
+    if (isEmptyCell == "false") return;
+
+    var indexVal = $('#' + cellId).attr('data-index');
+    var cellData = {
+        image: authUser.photoURL,
+        index: indexVal
+    };
+
+    var cellRef = gamesRef.child(recentlySelectedGameId).child('entries').push();
+    cellData.cellId = cellRef.key;
+
+    cellRef.set(cellData);
+}
 
 firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
@@ -101,28 +214,43 @@ function addUserElement(key, data) {
     }
 }
 
-function addGameElement(key, data) {
+function addParticipantElement(key, data) {
+    var element = '<li class="collection-item valign-wrapper">' +
+        '<img src= "' + data.photoURL + '" alt= "" class="circle" width="30" height="30" />' +
+        '<span class="title" style="margin-left:10px">' + data.displayName + '</span>' +
+        '</li>';
+    $('#game_participants').prepend(element);
+}
+
+function addGameElement(key, game) {
+    if (game.status.code != 1) {
+        return;
+    }
     var element = gameItemHTML;
-    if (data.gameIcon)
-        element = replaceAll(element, 'IMAGE_URL', data.gameIcon);
+    if (game.gameIcon)
+        element = replaceAll(element, 'IMAGE_URL', game.gameIcon);
     else
         element = replaceAll(element, 'IMAGE_URL', '../../images/logo.png');
-    element = replaceAll(element, 'GAME_NAME', data.gameName);
-    element = replaceAll(element, 'GAME_STATUS', data.status.message);
-    element = replaceAll(element, 'GAME_ID', data.gameId);
+    element = replaceAll(element, 'GAME_NAME', game.gameName);
+    element = replaceAll(element, 'GAME_STATUS', game.status.message);
+    element = replaceAll(element, 'GAME_ID', game.gameId);
     $('#games_wrapper').prepend(element);
 }
 
-function updateGameElement(key, data) {
+function updateGameElement(key, game) {
+    if (game.status.code != 1) {
+        $('#' + game.gameId).remove();
+        return;
+    }
     var element = gameItemHTML;
-    if (data.gameIcon)
-        element = replaceAll(element, 'IMAGE_URL', data.gameIcon);
+    if (game.gameIcon)
+        element = replaceAll(element, 'IMAGE_URL', game.gameIcon);
     else
         element = replaceAll(element, 'IMAGE_URL', '../../images/logo.png');
-    element = replaceAll(element, 'GAME_NAME', data.gameName);
-    element = replaceAll(element, 'GAME_STATUS', data.gameName);
-    element = replaceAll(element, 'GAME_ID', data.gameId);
-    $('#' + data.gameId).remove();
+    element = replaceAll(element, 'GAME_NAME', game.gameName);
+    element = replaceAll(element, 'GAME_STATUS', game.status.message);
+    element = replaceAll(element, 'GAME_ID', game.gameId);
+    $('#' + game.gameId).remove();
     $('#games_wrapper').prepend(element);
 }
 
@@ -136,9 +264,12 @@ function joinGame(gameId) {
         displayName: authUser.displayName,
         photoURL: authUser.photoURL,
     };
+
     recentlySelectedGameId = gameId;
+    save(CURRENT_GAME, { gameId: recentlySelectedGameId });
     gamesRef.child(gameId).child('participants').child(authUser.uid).set(participant).then(function() {
         $('ul.tabs').tabs('select_tab', 'play');
+        enterPlayArea();
     });
 }
 
@@ -211,41 +342,43 @@ function onStartGameClicked() {
         minPlayers: $('#min').text(),
         maxPlayers: $('#max').text(),
         isPublic: isPublicGame,
+        createdBy: authUser.uid,
         status: {
             code: 1,
-            message: 'Waiting for players'
+            message: 'Waiting for players...'
         }
     };
 
     var gameId = gamesRef.push().key;
     gameObj.gameId = gameId;
-    gamesRef.child(gameId).set(gameObj);
-
-    var gameStorageRef = storageRef.child(gameId);
-
-    var uploadTask = gameStorageRef.child('images/gameIcon.png').put(file);
-    $('#upload_status').show();
-    uploadTask.on('state_changed', function(snapshot) {
-        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        $('#upload_status').text('Upload is ' + progress + '% done');
-        switch (snapshot.state) {
-            case firebase.storage.TaskState.PAUSED: // or 'paused'
-                console.log('Upload is paused');
-                break;
-            case firebase.storage.TaskState.RUNNING: // or 'running'
-                console.log('Upload is running');
-                break;
-        }
-    }, function(error) {
-        console.log(error);
-    }, function() {
-        var downloadURL = uploadTask.snapshot.downloadURL;
-        $('#upload_status').text('Upload success');
-        gamesRef.child(gameId).child('gameIcon').set(downloadURL).then(function() {
-            $('#start_game_modal').modal('close');
-            $('ul.tabs').tabs('select_tab', 'play');
+    gamesRef.child(gameId).set(gameObj).then(function() {
+        joinGame(gameId);
+        var gameStorageRef = storageRef.child(gameId);
+        var uploadTask = gameStorageRef.child('images/gameIcon.png').put(file);
+        $('#upload_status').show();
+        uploadTask.on('state_changed', function(snapshot) {
+            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            $('#upload_status').text('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+                case firebase.storage.TaskState.PAUSED: // or 'paused'
+                    console.log('Upload is paused');
+                    break;
+                case firebase.storage.TaskState.RUNNING: // or 'running'
+                    console.log('Upload is running');
+                    break;
+            }
+        }, function(error) {
+            console.log(error);
+        }, function() {
+            var downloadURL = uploadTask.snapshot.downloadURL;
+            $('#upload_status').text('Upload success');
+            gamesRef.child(gameId).child('gameIcon').set(downloadURL).then(function() {
+                $('#start_game_modal').modal('close');
+                $('ul.tabs').tabs('select_tab', 'play');
+            });
         });
     });
+
 
 
 }

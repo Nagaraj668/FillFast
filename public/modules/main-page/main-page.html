@@ -48,7 +48,7 @@
                     <li class="tab"><a href="#games">Games</a></li>
                     <li class="tab"><a href="#online_players">Online Players</a></li>
                     <li class="tab"><a href="#requests">Requests <!-- <span class="new badge"></span> --></a></li>
-                    <li class="tab"><a href="#play">Play Area</a></li>
+                    <li class="tab" onclick="enterPlayArea()"><a href="#play">Play Area</a></li>
                 </ul>
             </div>
         </nav>
@@ -76,17 +76,33 @@
             </div>
             <div id="requests" class="col s12">Requests</div>
             <div id="play" class="col s12">
+                <p class="center-align" id="sample_label">No Game Selected</p>
+                <div class="row">
+                    <div class="col s4">
 
-                <div class="col s4">
-                    <ul class="collection" id="game_participants">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="row">
+                                    <div class="col m3">
+                                        <img src="../../images/logo.png" width="75" height="75" id="game_logo">
+                                    </div>
+                                    <div class="col s9">
+                                        <br>
+                                        <p id="game_name">Game Name</p>
+                                        <p id="game_status">Waiting for players</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    </ul>
+                        <ul class="collection" id="game_participants">
+                        </ul>
+                    </div>
+                    <div class="col s8">
+                        <div class="row" style="padding-left: 50px; padding-top: 50px" id="grid-wrapper">
+                        </div>
+                    </div>
                 </div>
-                <div class="col s8">
-
-                </div>
-
-
             </div>
         </div>
 
