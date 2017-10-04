@@ -61,7 +61,8 @@ $(document).ready(function() {
 
 
 function enterPlayArea() {
-    recentlySelectedGameId = get(CURRENT_GAME).gameId;
+    var currentGame = get(CURRENT_GAME);
+    recentlySelectedGameId = currentGame.gameId;
     if (!recentlySelectedGameId) {
         return;
     }
@@ -87,7 +88,6 @@ function enterPlayArea() {
         $('#game_name').text(game.gameName);
         $('#game_logo').attr('src', game.gameIcon);
         $('#game_status').text(status.message);
-
     });
 
     var currentGameStatusref = gamesRef.child(recentlySelectedGameId).child('status/code').on('value', function(data) {
@@ -112,10 +112,15 @@ function enterPlayArea() {
         $('#sample_label').hide();
         addParticipantElement(data.key, data.val());
     });
+
+    participantsRef.on('child_changed', function(data) {
+        updateParticipantElement(data.key, data.val());
+    });
 }
 
 function buildGridUI() {
     var element = gridCellHTML;
+    $('#grid-wrapper').empty();
 
     for (var i = 0; i < gridItems.length; i++) {
         var gridCell = gridItems[i];
@@ -128,9 +133,10 @@ function buildGridUI() {
 }
 
 function gameStarted() {
+    $('#game_status').addClass('green-text');
+
     gamesRef.child(recentlySelectedGameId).child('entries').on('child_added', function(data) {
         var cell = data.val();
-        console.log(JSON.stringify(cell))
         $('#id' + cell.index).attr('src', cell.image);
         $('#id' + cell.index).attr('data-cellId', cell.cellId);
         if (cell.success) {
@@ -149,7 +155,7 @@ function gameStarted() {
 }
 
 function gameEnded() {
-
+    $('#game_status').addClass('red-text');
 }
 
 function onCellClicked(cellId) {
@@ -216,9 +222,31 @@ function addUserElement(key, data) {
 }
 
 function addParticipantElement(key, data) {
-    var element = '<li class="collection-item valign-wrapper">' +
+    var points = data.points;
+    var pointsHtml = '';
+    if (points) {
+        pointsHtml = '<span class="badge green-text" style="margin-left: 100px; font-weight: bold">' + points + '</span>';
+    }
+
+    var element = '<li class="collection-item" id="' + key + '"><div class="row" style="margin-bottom: 0px"><div class="col s6 valign-wrapper">' +
         '<img src= "' + data.photoURL + '" alt= "" class="circle" width="30" height="30" />' +
-        '<span class="title" style="margin-left:10px">' + data.displayName + '</span>' +
+        '<span class="title" style="margin-left:10px">' + data.displayName +
+        '</span></div><div class="col s6 valign-wrapper" style="height: 30px;">' + pointsHtml + '</div></div>' +
+        '</li>';
+    $('#game_participants').prepend(element);
+}
+
+function updateParticipantElement(key, data) {
+    $('#' + key).remove();
+    var points = data.points;
+    var pointsHtml = '';
+    if (points) {
+        pointsHtml = '<span class="badge green-text" style="margin-left: 100px; font-weight: bold">' + points + '</span>';
+    }
+    var element = '<li class="collection-item" id="' + key + '"><div class="row" style="margin-bottom: 0px"><div class="col s6 valign-wrapper">' +
+        '<img src= "' + data.photoURL + '" alt= "" class="circle" width="30" height="30" />' +
+        '<span class="title" style="margin-left:10px">' + data.displayName +
+        '</span></div><div class="col s6 valign-wrapper" style="height: 30px;">' + pointsHtml + '</div></div>' +
         '</li>';
     $('#game_participants').prepend(element);
 }
@@ -306,7 +334,6 @@ function showConfirmModal(modalObj) {
         startingTop: '4%', // Starting top style attribute
         endingTop: '10%', // Ending top style attribute
         ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
-            console.log(modal, trigger);
             $('#confirm_title').text(modalObj.title);
             $('#confirm_message').text(modalObj.message);
         },
@@ -344,13 +371,12 @@ function onStartGameClicked() {
         maxPlayers: $('#max').text(),
         isPublic: isPublicGame,
         createdBy: authUser.uid,
+        boxesFilled: 0,
         status: {
             code: 1,
             message: 'Waiting for players...'
         }
     };
-
-    alert(gameObj.gameName)
 
     var gameId = gamesRef.push().key;
     gameObj.gameId = gameId;

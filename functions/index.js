@@ -51,7 +51,6 @@ exports.onGameStatusChange = functions.database.ref('games/{gameId}/entries/{cel
         console.log("UID " + uid + " already exists.");
         return;
     }
-
     return event.data.ref.parent.child('success').set(true).then(function() {
         return database.ref('games').child(gameId).child('participants').child(uid).child('points').once('value')
             .then(function(snapshot) {
@@ -60,7 +59,28 @@ exports.onGameStatusChange = functions.database.ref('games/{gameId}/entries/{cel
                     points = 0;
                 }
                 points = points + 1;
-                return database.ref('games').child(gameId).child('participants').child(uid).child('points').set(points);
+                return database.ref('games').child(gameId).child('participants')
+                    .child(uid).child('points').set(points).then(function() {
+                        return database.ref('games').child(gameId).child('boxesFilled').once('value')
+                            .then(function(snapshot) {
+                                var boxesFilled = snapshot.val();
+                                boxesFilled++;
+                                return database.ref('games').child(gameId).child('boxesFilled').set(boxesFilled)
+                                    .then(function() {
+
+                                        if (boxesFilled == 36) {
+                                            var status = {
+                                                code: GAME_ENDED,
+                                                message: "Game Over!"
+                                            };
+                                            return database.ref('games').child(gameId).child('status')
+                                                .set(status);
+                                        } else {
+                                            return;
+                                        }
+                                    });
+                            });
+                    });
             });
     });
 })
