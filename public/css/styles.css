@@ -24,3 +24,8 @@
 .cell-item.success {
     border: 4px solid lightgreen;
 }
+
+.cell-item:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}

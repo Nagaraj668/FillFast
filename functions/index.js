@@ -15,7 +15,7 @@ exports.onSignUp = functions.auth.user().onCreate(event => {
     return admin.database().ref("users").child(user.uid).update(user);
 });
 
-exports.validatePlayerEntry = functions.database.ref('games/{gameId}/participants/{participantId}').onWrite(event => {
+exports.validatePlayerEntry = functions.database.ref('games/{gameId}/participants/{participantId}/uid').onWrite(event => {
 
     const gameId = event.params.gameId;
     const participantId = event.params.participantId;
@@ -43,6 +43,24 @@ exports.validatePlayerEntry = functions.database.ref('games/{gameId}/participant
 
 })
 
-exports.onGameStatusChange = functions.database.ref('games/{gameId}/entries/{cellId}/image').onWrite(event => {
-    return event.data.ref.parent.child('success').set(true);
+exports.onGameStatusChange = functions.database.ref('games/{gameId}/entries/{cellId}/uid').onWrite(event => {
+
+    var uid = event.data.val();
+    var gameId = event.params.gameId;
+    if (event.data.previous.exists()) {
+        console.log("UID " + uid + " already exists.");
+        return;
+    }
+
+    return event.data.ref.parent.child('success').set(true).then(function() {
+        return database.ref('games').child(gameId).child('participants').child(uid).child('points').once('value')
+            .then(function(snapshot) {
+                var points = snapshot.val();
+                if (points == null || points == undefined) {
+                    points = 0;
+                }
+                points = points + 1;
+                return database.ref('games').child(gameId).child('participants').child(uid).child('points').set(points);
+            });
+    });
 })

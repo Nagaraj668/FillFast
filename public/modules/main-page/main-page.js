@@ -160,7 +160,8 @@ function onCellClicked(cellId) {
     var indexVal = $('#' + cellId).attr('data-index');
     var cellData = {
         image: authUser.photoURL,
-        index: indexVal
+        index: indexVal,
+        uid: authUser.uid
     };
 
     var cellRef = gamesRef.child(recentlySelectedGameId).child('entries').push();
@@ -338,7 +339,7 @@ function onStartGameClicked() {
     validateGame();
     var file = document.getElementById("file").files[0];
     var gameObj = {
-        gameName: $('#game_name').val(),
+        gameName: $('#game_name_1').val(),
         minPlayers: $('#min').text(),
         maxPlayers: $('#max').text(),
         isPublic: isPublicGame,
@@ -348,6 +349,8 @@ function onStartGameClicked() {
             message: 'Waiting for players...'
         }
     };
+
+    alert(gameObj.gameName)
 
     var gameId = gamesRef.push().key;
     gameObj.gameId = gameId;
